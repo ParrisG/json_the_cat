@@ -1,29 +1,62 @@
 const request = require('request');
 
-const breed = process.argv.slice(2);
 
-request(`https://api.thecatapi.com/v1/breeds/search?q=${breed[0]}`, (error, response, body) => {
-  //Edge Case: Request Failed
-  if (error) {
-    console.log('error: ', error);
+
+const fetchBreedDescription = function(breedName, callback) {
+  request(`https://api.thecatapi.com/v1/breeds/search?q=${breedName}`, (error, response, body) => {
+    //Edge Case: Request Failed
+    if (error) {
+      callback(error, null);
+      return;
+    }
+    //Edge Case: Breed name not found
+    if (body.length === 2) {
+      callback("Breed Not Found", null);
+      return;
+    }
+    //console.log(body);
+
+    //console.log('statusCode: ', response && response.statusCode);
+    //console.log('body: ', body);
+    const data = JSON.parse(body);
+    callback(null, data[0].description);
     return;
-  }
-  //Edge Case: Breed name not found
-  if (body[0].length === 0) {
-    console.log("Breed Not Found");
-    return;
-  }
+  });
+};
+
+module.exports = { fetchBreedDescription };
 
 
-  //console.log('statusCode: ', response && response.statusCode);
-  //console.log('body: ', body);
-  const data = JSON.parse(body);
 
-  //Edge Case: Breed name not found
-  if (data[0] === undefined) {
-    console.log(`${breed} not found. Check spelling and try again!`);
-    return;
-  }
-  console.log(data[0].description);
-});
+
+
+
+
+
+// request(`https://api.thecatapi.com/v1/breeds/search?q=${breed[0]}`, (error, response, body) => {
+//   //Edge Case: Request Failed
+//   if (error) {
+//     console.log('error: ', error);
+//     return;
+//   }
+//   //Edge Case: Breed name not found
+//   if (body.length === 2) {
+//     console.log("Breed Not Found");
+//     return;
+//   }
+//   console.log(body);
+
+//   //console.log('statusCode: ', response && response.statusCode);
+//   //console.log('body: ', body);
+//   const data = JSON.parse(body);
+//   console.log("Data: ", data);
+
+
+//   // //Edge Case: Breed name not found (this is another way of doing this)
+//   // if (data[0] === undefined) {
+//   //   console.log(`${breed} not found. Check spelling and try again!`);
+//   //   return;
+//   // }
+//   console.log(data[0].description);
+// });
 
